@@ -6,11 +6,14 @@ import subprocess
 import json
 from utils import which
 
+DEFAULT_FACTS = ['operatingsystem', 'operatingsystemrelease', 'virtual', 'hostname', 'fqdn', 'architecture']
 
 class Facter(Plugin):
+
     def run(self):
         p = subprocess.Popen(["facter", "--json"], stdout=subprocess.PIPE)
-        facter_facts = json.load(p.stdout)
+        facts = self._conf.get('facts', DEFAULT_FACTS)
+        facter_facts = dict(filter(lambda (k, v): k in facts,json.load(p.stdout).iteritems()))
         return False, facter_facts, None
 
     def _is_enabled(self):
