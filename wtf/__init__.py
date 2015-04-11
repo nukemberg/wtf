@@ -33,7 +33,7 @@ def read_conf(conf_file):
 
 @click.command()
 @click.option("--all", "verbose", help="Show all output, even if no problem is detected", is_flag=True, default=False)
-@click.option("-c", "--config", "config", help="Config file location", default=None)
+@click.option("-c", "--config", "config", help="Config file location", metavar="CONFIG_FILE")
 def main(verbose, config):
     colorama.init()
 
