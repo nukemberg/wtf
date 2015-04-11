@@ -40,7 +40,7 @@ def main(verbose, config):
     plugins = [Df, LoadAvg, Facter]
     conf = read_conf(config)
 
-    info = filter(lambda x: x is not None, map(partial(run_plugin, conf), plugins))
+    info = filter(None, map(partial(run_plugin, conf), plugins))
 
     for problem, normal_info, extra_info in info:
         if normal_info:
