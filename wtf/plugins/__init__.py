@@ -1,6 +1,6 @@
-from abc import abstractmethod, ABCMeta
-
 __author__ = 'avishai'
+
+from abc import abstractmethod, ABCMeta
 
 # This is the prototype of a plugin
 

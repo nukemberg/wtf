@@ -1,12 +1,13 @@
 import json
+import logging
 import sys
 
 __author__ = 'avishai'
 
 import click
 import colorama
-from linux import Df, LoadAvg
-from facter import Facter
+from plugins.linux import Df, LoadAvg
+from plugins.facter import Facter
 from functools import partial
 import os
 import yaml
@@ -61,8 +62,15 @@ def run_plugin(conf, plugin):
     :return:
     """
     plugin = plugin(conf.get(plugin.name, {}))
-    if plugin.enabled:
-        return plugin.run()
+    try:
+        if plugin.enabled:
+            plugin_res = plugin.run()
+            if type(plugin_res) not in [tuple, list]:
+                raise RuntimeError("Plugin returned wrong type")
+            if len(plugin_res) != 3:
+                raise RuntimeError("Plugin returned wrong number of elements")
+    except Exception:
+        logging.warn("Plugin %s failed", plugin.name, exc_info=True)
     return None
 
 if __name__ == '__main__':

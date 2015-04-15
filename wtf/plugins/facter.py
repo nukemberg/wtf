@@ -1,10 +1,9 @@
-from plugin import Plugin
-
 __author__ = 'avishai'
 
+from wtf.plugins import Plugin
 import subprocess
 import json
-from utils import which
+from wtf.utils import which
 
 DEFAULT_FACTS = ['operatingsystem', 'operatingsystemrelease', 'virtual', 'hostname', 'fqdn', 'architecture']
 

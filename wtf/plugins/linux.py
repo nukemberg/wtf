@@ -3,7 +3,7 @@ __author__ = 'avishai'
 import procfs
 import os
 import multiprocessing
-from plugin import Plugin
+from wtf.plugins import Plugin
 
 class LoadAvg(Plugin):
     def run(self):
