@@ -6,8 +6,8 @@ import json
 import logging
 import click
 import colorama
-from plugins.linux import Df, LoadAvg
-from plugins.facter import Facter
+from wtf.plugins.linux import Df, LoadAvg
+from wtf.plugins.facter import Facter
 from functools import partial
 import os
 import yaml
