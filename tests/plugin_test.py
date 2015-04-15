@@ -14,6 +14,10 @@ class DummyMalformedPlugin(Plugin):
     def run(self):
         return (1, 2)
 
+class DummyGoodPlugin(Plugin):
+    def run(self):
+        return "problem", "info", "extra_info"
+
 class PluginRunnerTests(unittest.TestCase):
     def testPluginError(self):
         self.assertEqual(wtf.run_plugin({}, DummyBadPlugin), None)
@@ -27,3 +31,6 @@ class PluginRunnerTests(unittest.TestCase):
         p.name = '**name**'
         wtf.run_plugin({'**name**': {'k': 'v'}}, p)
         p.assert_called_once_with({'k': 'v'})
+
+    def testPluginOK(self):
+        self.assertEqual(("problem", "info", "extra_info"), wtf.run_plugin({},DummyGoodPlugin))

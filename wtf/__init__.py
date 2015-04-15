@@ -1,9 +1,9 @@
-import json
-import logging
-import sys
+from __future__ import print_function
 
 __author__ = 'avishai'
 
+import json
+import logging
 import click
 import colorama
 from plugins.linux import Df, LoadAvg
@@ -28,7 +28,7 @@ def read_conf(conf_file):
                 elif file.endswith(".yaml") or file.endswith(".yml"):
                     return yaml.load(f)
                 else:
-                    print >> sys.stderr, "Can't identify file type from extension"
+                    logging.error("Can't identify file type from extension")
                     raise RuntimeError("Could not parse config file")
     return {}
 
@@ -36,6 +36,7 @@ def read_conf(conf_file):
 @click.option("--all", "verbose", help="Show all output, even if no problem is detected", is_flag=True, default=False)
 @click.option("-c", "--config", "config", help="Config file location", metavar="CONFIG_FILE")
 def main(verbose, config):
+    logging.basicConfig(level=logging.WARN, format="%(level)s: %(message)s")
     colorama.init()
 
     plugins = [Df, LoadAvg, Facter]
@@ -45,12 +46,12 @@ def main(verbose, config):
 
     for problem, normal_info, extra_info in info:
         if normal_info:
-            print normal_info
+            print(normal_info)
         if problem:
-            print colorama.Fore.RED + extra_info + colorama.Fore.RESET
-            print colorama.Fore.RED + problem + colorama.Fore.RESET
+            print(colorama.Fore.RED + extra_info + colorama.Fore.RESET)
+            print(colorama.Fore.RED + problem + colorama.Fore.RESET)
         elif verbose and extra_info:
-            print extra_info
+            print(extra_info)
 
 
 def run_plugin(conf, plugin):
@@ -69,6 +70,7 @@ def run_plugin(conf, plugin):
                 raise RuntimeError("Plugin returned wrong type")
             if len(plugin_res) != 3:
                 raise RuntimeError("Plugin returned wrong number of elements")
+            return plugin_res
     except Exception:
         logging.warn("Plugin %s failed", plugin.name, exc_info=True)
     return None
