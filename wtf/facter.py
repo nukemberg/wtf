@@ -16,5 +16,6 @@ class Facter(Plugin):
         facter_facts = dict(filter(lambda (k, v): k in facts,json.load(p.stdout).iteritems()))
         return False, facter_facts, None
 
-    def _is_enabled(self):
+    @property
+    def enabled(self):
         return which("facter") is not None

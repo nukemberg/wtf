@@ -2,12 +2,13 @@ __author__ = 'avishai'
 
 import procfs
 import os
+import multiprocessing
 from plugin import Plugin
 
 class LoadAvg(Plugin):
     def run(self):
         p = procfs.Proc()
-        n_cpu = len(p.cpuinfo)
+        n_cpu = multiprocessing.cpu_count()
         loadavg = p.loadavg()
 
         if any(avg > n_cpu for avg in loadavg['average'].values()):
@@ -20,7 +21,10 @@ class LoadAvg(Plugin):
 
 class Df(Plugin):
     def _statfs(self, dev):
-        return os.statvfs(dev)
+        try:
+            return os.statvfs(dev)
+        except OSError:
+            pass
 
     def _df(self):
         def _remove_nodev_and_empty(entry):
@@ -34,7 +38,8 @@ class Df(Plugin):
                             map(lambda entry: entry.split('\t'), p.filesystems.split('\n'))))
         mounts = [mountpoint for mountpoint, mountinfo in p.mounts.items() if mountinfo['type'] in physfs]
 
-        mount_df = [(mountpoint, self._statfs(mountpoint)) for mountpoint in mounts]
+        mount_df = filter(lambda (_, y): y,
+                          [(mountpoint, self._statfs(mountpoint)) for mountpoint in mounts])
         return mount_df
 
     def _pct(self, a, b):
