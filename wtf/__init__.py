@@ -41,14 +41,15 @@ def main(verbose, config):
     wtf_data = run_plugins(conf)
     colorama.init()
 
-    for problem, normal_info, extra_info in wtf_data:
-        if normal_info:
-            print(normal_info)
-        if problem:
-            print(colorama.Fore.RED + extra_info + colorama.Fore.RESET)
-            print(colorama.Fore.RED + problem + colorama.Fore.RESET)
-        elif verbose and extra_info:
-            print(extra_info)
+    for plugin_data in wtf_data:
+        if plugin_data.get('info'):
+            print(plugin_data['info'])
+        if plugin_data.get('problem'):
+            if plugin_data.get('extra_info'):
+                print(colorama.Fore.RED + plugin_data['extra_info'] + colorama.Fore.RESET)
+            print(colorama.Fore.RED + plugin_data['problem'] + colorama.Fore.RESET)
+        elif verbose and plugin_data.get('extra_info'):
+            print(plugin_data['extra_info'])
 
 def run_plugins(conf):
     plugins = [Df, LoadAvg, Facter]
