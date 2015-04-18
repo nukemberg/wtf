@@ -20,3 +20,13 @@ def which(program):
                 return exe_file
 
     return None
+
+def get_in(data, criteria):
+    if type(criteria) not in [list, tuple]:
+        criteria = [criteria]
+    for k in criteria:
+        data = data[k]
+    return data
+
+def flatten_key_name(k):
+    return '.'.join(k) if type(k) in [list, tuple] else k

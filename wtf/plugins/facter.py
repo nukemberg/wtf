@@ -5,7 +5,8 @@ import subprocess
 import json
 from wtf.utils import which
 
-DEFAULT_FACTS = ['operatingsystem', 'operatingsystemrelease', 'virtual', 'hostname', 'fqdn', 'architecture']
+DEFAULT_FACTS = ['operatingsystem', 'operatingsystemrelease', 'virtual', 'hostname', 'fqdn', 'architecture',
+                 'memorysize', 'swapsize', 'processorcount']
 
 class Facter(Plugin):
 

@@ -8,6 +8,7 @@ import click
 import colorama
 from wtf.plugins.linux import Df, LoadAvg
 from wtf.plugins.facter import Facter
+from wtf.plugins.ohai import Ohai
 from functools import partial
 import os
 import yaml
@@ -36,7 +37,7 @@ def read_conf(conf_file):
 @click.option("--all", "verbose", help="Show all output, even if no problem is detected", is_flag=True, default=False)
 @click.option("-c", "--config", "config", help="Config file location", metavar="CONFIG_FILE")
 def main(verbose, config):
-    logging.basicConfig(level=logging.WARN, format="%(level)s: %(message)s")
+    logging.basicConfig(level=logging.WARN, format="%(levelname)s: %(message)s")
     conf = read_conf(config)
     wtf_data = run_plugins(conf)
     colorama.init()
@@ -52,7 +53,7 @@ def main(verbose, config):
             print(plugin_data['extra_info'])
 
 def run_plugins(conf):
-    plugins = [Df, LoadAvg, Facter]
+    plugins = [Df, LoadAvg, Facter, Ohai]
     return filter(None, map(partial(run_plugin, conf), plugins))
 
 def run_plugin(conf, plugin):
