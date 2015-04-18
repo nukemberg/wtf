@@ -1,4 +1,4 @@
-from mock import Mock, create_autospec
+from mock import create_autospec
 from wtf.plugins import Plugin
 import wtf
 
@@ -16,7 +16,7 @@ class DummyMalformedPlugin(Plugin):
 
 class DummyGoodPlugin(Plugin):
     def run(self):
-        return "problem", "info", "extra_info"
+        return dict(problem="problem", info="info", extra_info="extra_info")
 
 class PluginRunnerTests(unittest.TestCase):
     def testPluginError(self):
@@ -33,4 +33,5 @@ class PluginRunnerTests(unittest.TestCase):
         p.assert_called_once_with({'k': 'v'})
 
     def testPluginOK(self):
-        self.assertEqual(("problem", "info", "extra_info"), wtf.run_plugin({},DummyGoodPlugin))
+        self.assertEqual(dict(problem="problem", info="info", extra_info="extra_info"),
+                         wtf.run_plugin({},DummyGoodPlugin))

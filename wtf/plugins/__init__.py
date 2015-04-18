@@ -3,7 +3,6 @@ __author__ = 'avishai'
 from abc import abstractmethod, ABCMeta
 
 # This is the prototype of a plugin
-
 class Plugin(object):
     __metaclass__ = ABCMeta
 
@@ -11,7 +10,6 @@ class Plugin(object):
         self._conf = conf
 
     # override this property if you want to enable a plugin dynamically
-    @property
     def enabled(self):
         return True
 
@@ -21,4 +19,5 @@ class Plugin(object):
 
     @abstractmethod
     def run(self):
+        """Run a plugin and return relevant data. Plugins should return a dict"""
         pass

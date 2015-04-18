@@ -37,14 +37,11 @@ def read_conf(conf_file):
 @click.option("-c", "--config", "config", help="Config file location", metavar="CONFIG_FILE")
 def main(verbose, config):
     logging.basicConfig(level=logging.WARN, format="%(level)s: %(message)s")
+    conf = read_conf(config)
+    wtf_data = run_plugins(conf)
     colorama.init()
 
-    plugins = [Df, LoadAvg, Facter]
-    conf = read_conf(config)
-
-    info = filter(None, map(partial(run_plugin, conf), plugins))
-
-    for problem, normal_info, extra_info in info:
+    for problem, normal_info, extra_info in wtf_data:
         if normal_info:
             print(normal_info)
         if problem:
@@ -53,6 +50,9 @@ def main(verbose, config):
         elif verbose and extra_info:
             print(extra_info)
 
+def run_plugins(conf):
+    plugins = [Df, LoadAvg, Facter]
+    return filter(None, map(partial(run_plugin, conf), plugins))
 
 def run_plugin(conf, plugin):
     """
@@ -64,12 +64,10 @@ def run_plugin(conf, plugin):
     """
     plugin = plugin(conf.get(plugin.name, {}))
     try:
-        if plugin.enabled:
+        if plugin.enabled():
             plugin_res = plugin.run()
-            if type(plugin_res) not in [tuple, list]:
+            if type(plugin_res) != dict:
                 raise RuntimeError("Plugin returned wrong type")
-            if len(plugin_res) != 3:
-                raise RuntimeError("Plugin returned wrong number of elements")
             return plugin_res
     except Exception:
         logging.warn("Plugin %s failed", plugin.name, exc_info=True)

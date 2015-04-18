@@ -13,8 +13,7 @@ class Facter(Plugin):
         p = subprocess.Popen(["facter", "--json"], stdout=subprocess.PIPE)
         facts = self._conf.get('facts', DEFAULT_FACTS)
         facter_facts = dict(filter(lambda (k, v): k in facts,json.load(p.stdout).iteritems()))
-        return False, facter_facts, None
+        return dict(problem=False, info=facter_facts)
 
-    @property
     def enabled(self):
         return which("facter") is not None

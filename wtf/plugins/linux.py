@@ -16,7 +16,7 @@ class LoadAvg(Plugin):
         else:
             problem = False
         loadavg_avg = dict((str(k), v) for k, v in loadavg['average'].items())
-        return problem, "Load avg: %(1).2f (1m), %(5).2f (5m), %(15).2f (15m)" % loadavg_avg, None
+        return dict(problem=problem, info="Load avg: %(1).2f (1m), %(5).2f (5m), %(15).2f (15m)" % loadavg_avg)
 
 
 class Df(Plugin):
@@ -67,4 +67,4 @@ class Df(Plugin):
             problems.append("mountpoints %r are out of inodes" % [[mntpnt for mntpnt, info in disks_with_inodes_full]])
 
         problem = "\n".join(problems) if len(problems) > 0 else False
-        return problem, None, dict(map(self._statvfs_result_to_dict, df_data))
+        return dict(problem=problem, info=None, extra_info=dict(map(self._statvfs_result_to_dict, df_data)))
