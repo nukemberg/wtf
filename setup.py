@@ -10,5 +10,6 @@ setup(name='wtf',
       packages=find_packages(exclude=['tests']),
       scripts=['bin/wtf'],
       data_files=["requirements.txt", "test_requirements.txt"],
-      requires=requirements_file("requirements.txt"),
-      tests_require=requirements_file("test_requirements.txt"))
+      install_requires=requirements_file("requirements.txt"),
+      tests_require=requirements_file("test_requirements.txt"),
+      test_suite='tests')
