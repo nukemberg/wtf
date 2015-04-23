@@ -9,5 +9,6 @@ setup(name='wtf',
       description='A first responder aid',
       packages=['wtf'],
       scripts=['bin/wtf'],
+      data_files=["requirements.txt", "test_requirements.txt"],
       requires=requirements_file("requirements.txt"),
       tests_require=requirements_file("test_requirements.txt"))
