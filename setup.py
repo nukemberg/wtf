@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import find_packages, setup
 
 def requirements_file(f):
       with open(f, 'r') as fs:
@@ -7,7 +7,7 @@ def requirements_file(f):
 setup(name='wtf',
       version='0.1.0',
       description='A first responder aid',
-      packages=['wtf'],
+      packages=find_packages(exclude=['tests']),
       scripts=['bin/wtf'],
       data_files=["requirements.txt", "test_requirements.txt"],
       requires=requirements_file("requirements.txt"),
