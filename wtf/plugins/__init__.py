@@ -8,6 +8,7 @@ class Plugin(object):
 
     def __init__(self, conf):
         self._conf = conf
+        """:type: dict"""
 
     # override this property if you want to enable a plugin dynamically
     def enabled(self):

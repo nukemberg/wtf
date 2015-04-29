@@ -9,6 +9,7 @@ import colorama
 from wtf.plugins.linux import Df, LoadAvg
 from wtf.plugins.facter import Facter
 from wtf.plugins.ohai import Ohai
+from wtf.plugins.ifconfig import Ifconfig
 from functools import partial
 import os
 import yaml
@@ -53,7 +54,7 @@ def main(verbose, config):
             print(plugin_data['extra_info'])
 
 def run_plugins(conf):
-    plugins = [Df, LoadAvg, Facter, Ohai]
+    plugins = [Df, LoadAvg, Facter, Ohai, Ifconfig]
     return filter(None, map(partial(run_plugin, conf), plugins))
 
 def run_plugin(conf, plugin):
