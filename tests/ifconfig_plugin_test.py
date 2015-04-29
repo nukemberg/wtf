@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest2 import TestCase
 from wtf.plugins.ifconfig import Ifconfig
 
 __author__ = 'avishai'
