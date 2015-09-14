@@ -35,62 +35,34 @@ These days, Full Duplex switch links are the norm. Only TX and RX packets should
 
 class Ifconfig(Plugin):
     def run(self):
-        ifconfig_command = self._conf.get("command", "ifconfig")
-        p = subprocess.Popen(ifconfig_command, stdout=subprocess.PIPE)
-        data = self._parse_ifconfig_output(p.stdout.read())
-        ignored_ifaces = self._conf.get('ignored_interfaces', [])
-        filetered_data = dict(filter(lambda (iface, iface_info): iface not in ignored_ifaces, data.items()))
-
-        bad_interfaces = dict(filter(self._iface_is_bad, filetered_data.items()))
-
-        return dict(
-            problem="The following NICs appear to have issues: %s\nPlease note that ifconfig counters need to be reset in order to avoid detecting old errors" % ", ".join(
-                bad_interfaces.keys())) if bad_interfaces else {}
-
-    def _parse_ifconfig_output(self, ifconfig_output):
-        chunks = filter(lambda c: c, ifconfig_output.split('\n\n'))
-        return dict(map(self._parse_ifconfig_chunk, chunks))
-
-    def _parse_ifconfig_chunk(self, chunk):
-        # device name
-        lines = chunk.split('\n')
-        info = {}
-
-        m = re.match('^(?P<name>[0-9a-zA-Z@\.\:\-_]+):\s+.*mtu (?P<mtu>\d+)', lines[0])
-        if m:
-            iface_name = m.groupdict()['name']
-            if 'mtu' in m.groupdict():
-                info['mtu'] = m.groupdict()['mtu']
+        data = self._read_proc_net_dev()
+        ignored_ifaces = self._conf.get('ignored', [])
+        filtered_data = dict(filter(lambda (iface, iface_info): iface not in ignored_ifaces, data.items()))
+        bad_interfaces = dict(filter(self._iface_is_bad, filtered_data.items()))
+        if bad_interfaces:
+            return dict(problem="The following NICs appear to have issues: %s\n"
+                            "Please note that ifconfig counters need to be reset in order to avoid detecting old errors"
+                            % ", ".join(bad_interfaces.keys()))
         else:
-            return None, None
+            return dict()
 
-        for line in lines:
-            if re.match('\s+inet\s', line):  # ipv4
-                pass
-            elif re.match('\s+inet6\s', line):  # ipv6
-                pass
-            else:
-                m = re.match('\s+(?P<type>ether|loop).*', line)
-                if m:
-                    info['type'] = m.groupdict()["type"]
-                    continue
-                m = re.match(
-                    '\s+RX errors (?P<rx_errors>\d+)\s+dropped (?P<rx_dropped>\d+)\s+overruns (?P<rx_overruns>\d+)',
-                    line)
-                if m:
-                    info.update(dict((k, int(v)) for (k, v) in m.groupdict().items()))
-                    continue
-                m = re.match(
-                    '\s+TX errors (?P<tx_errors>\d+)\s+dropped (?P<tx_dropped>\d+)\s+overruns (?P<tx_overruns>\d+)\s+carrier (?P<tx_carrier>\d+)\s+collisions (?P<tx_collisions>\d+)',
-                    line)
-                if m:
-                    info.update(dict((k, int(v)) for (k, v) in m.groupdict().items()))
-                    continue
+    def _read_proc_net_dev(self):
+        with open('/proc/net/dev') as f:
+            # skip header lines
+            next(f)
 
-        return iface_name, info
+            rx_columns, tx_columns = map(lambda l: re.split('\s+', l), next(f).strip().split('|')[1:])
+            rx_columns = ['rx_' + column_name for column_name in rx_columns]
+            tx_columns = ['tx_' + column_name for column_name in tx_columns]
+
+            dev_stats = {}
+            for line in f:
+                dev, raw_stats = line.strip().split(':', 1)
+                stats = map(int, re.split('\s+', raw_stats.strip()))
+                dev_stats[dev] = dict(zip(rx_columns + tx_columns, stats))
+
+        return dev_stats
 
     def _iface_is_bad(self, (iface, iface_info)):
-        if iface_info:
-            return any(v > 0 for (k, v) in iface_info.items()
-                       if '_' in k and k.split('_')[1] in ('collisions', 'dropped', 'errors', 'overruns', 'carrier'))
-        return {}
+        return any(v > 0 for (k, v) in iface_info.items()
+                   if '_' in k and k.split('_')[1] in ('tx_colls', 'tx_drop', 'tx_errs', 'rx_drop', 'rx_errs'))

@@ -37,14 +37,18 @@ class Df(Plugin):
         physfs = map(lambda entry: entry[1],
                      filter(_remove_nodev_and_empty,
                             map(lambda entry: entry.split('\t'), p.filesystems.split('\n'))))
-        mounts = [mountpoint for mountpoint, mountinfo in p.mounts.items() if mountinfo['type'] in physfs]
+        mounts = [mountpoint for mountpoint, mountinfo in p.mounts.items()
+                  if mountinfo['type'] in physfs and mountpoint not in self._conf.get('ignored', {})]
 
         mount_df = filter(lambda (_, y): y,
                           [(mountpoint, self._statfs(mountpoint)) for mountpoint in mounts])
         return mount_df
 
     def _pct(self, a, b):
-        return int((float(a) / b) * 100)
+        if b:
+            return int(float(a) / b * 100)
+        else:
+            return None
 
     def _inodes_full(self, (_, statvfs)):
         return statvfs.f_ffree == 0

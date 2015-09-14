@@ -17,6 +17,7 @@ import yaml
 WTF_CONF_YAML = "/etc/wtf.yaml"
 WTF_CONF_JSON = "/etc/wtf.json"
 
+
 def read_conf(conf_file):
     if conf_file is None:
         conf_files = [WTF_CONF_JSON, WTF_CONF_YAML]
@@ -34,6 +35,7 @@ def read_conf(conf_file):
                     raise RuntimeError("Could not parse config file")
     return {}
 
+
 @click.command()
 @click.option("--all", "verbose", help="Show all output, even if no problem is detected", is_flag=True, default=False)
 @click.option("-c", "--config", "config", help="Config file location", metavar="CONFIG_FILE")
@@ -48,14 +50,16 @@ def main(verbose, config):
             print(plugin_data['info'])
         if plugin_data.get('problem'):
             if plugin_data.get('extra_info'):
-                print(colorama.Fore.RED + plugin_data['extra_info'] + colorama.Fore.RESET)
+                print(colorama.Fore.RED + str(plugin_data['extra_info']) + colorama.Fore.RESET)
             print(colorama.Fore.RED + plugin_data['problem'] + colorama.Fore.RESET)
         elif verbose and plugin_data.get('extra_info'):
             print(plugin_data['extra_info'])
 
+
 def run_plugins(conf):
     plugins = [Df, LoadAvg, Facter, Ohai, Ifconfig]
     return filter(None, map(partial(run_plugin, conf), plugins))
+
 
 def run_plugin(conf, plugin):
     """

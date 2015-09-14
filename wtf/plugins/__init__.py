@@ -7,7 +7,9 @@ class Plugin(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, conf):
-        self._conf = conf
+        self._conf = {}
+        self._conf.update(conf.get(self.__class__.__name__, {}))
+        self._conf['common'] = conf
         """:type: dict"""
 
     # override this property if you want to enable a plugin dynamically
