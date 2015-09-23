@@ -38,7 +38,7 @@ class Df(Plugin):
                      filter(_remove_nodev_and_empty,
                             map(lambda entry: entry.split('\t'), p.filesystems.split('\n'))))
         mounts = [mountpoint for mountpoint, mountinfo in p.mounts.items()
-                  if mountinfo['type'] in physfs and mountpoint not in self._conf.get('ignored', {})]
+                  if mountinfo['type'] in physfs and mountpoint not in self._conf.get('ignored', [])]
 
         mount_df = filter(lambda (_, y): y,
                           [(mountpoint, self._statfs(mountpoint)) for mountpoint in mounts])

@@ -69,7 +69,9 @@ def run_plugin(conf, plugin):
     :type plugin: wtf.plugin.Plugin
     :return:
     """
-    plugin = plugin(conf.get(plugin.name, {}))
+    plugin_conf = conf.get(plugin.name(), {})
+    plugin_conf['common'] = conf.get('common', {})
+    plugin = plugin(plugin_conf)
     try:
         if plugin.enabled():
             plugin_res = plugin.run()
