@@ -51,7 +51,7 @@ class Df(Plugin):
 
     def _diskspace_full(self, (_, statvfs)):
         # TODO: don't use a fixed threshold
-        return (float(statvfs.f_bfree) / statvfs.f_blocks) < 0.1
+        return (float(statvfs.f_bavail) / statvfs.f_blocks) < 0.1
 
     def _statvfs_result_to_dict(self, (mountpoint, statvfs)):
         return (mountpoint, {'used_inodes_pct': self._pct(statvfs.f_files - statvfs.f_favail, statvfs.f_files),
