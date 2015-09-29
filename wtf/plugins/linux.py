@@ -1,9 +1,10 @@
-__author__ = 'avishai'
-
 import procfs
 import os
 import multiprocessing
 from wtf.plugins import Plugin
+
+__author__ = 'avishai'
+
 
 class LoadAvg(Plugin):
     def run(self):
@@ -43,7 +44,7 @@ class Df(Plugin):
         return mount_df
 
     def _pct(self, a, b):
-        return int(float(a) / b * 100)
+        return int((float(a) / b) * 100)
 
     def _inodes_full(self, (_, statvfs)):
         return statvfs.f_ffree == 0
@@ -53,8 +54,8 @@ class Df(Plugin):
         return (float(statvfs.f_bfree) / statvfs.f_blocks) < 0.1
 
     def _statvfs_result_to_dict(self, (mountpoint, statvfs)):
-        return (mountpoint, {'used_inodes_pct': self._pct(statvfs.f_favail, statvfs.f_files),
-                             'used_diskspace_pct': self._pct(statvfs.f_bavail, statvfs.f_blocks)})
+        return (mountpoint, {'used_inodes_pct': self._pct(statvfs.f_files - statvfs.f_favail, statvfs.f_files),
+                             'used_diskspace_pct': self._pct(statvfs.f_blocks - statvfs.f_bavail, statvfs.f_blocks)})
 
     def run(self):
         df_data = self._df()
