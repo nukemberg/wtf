@@ -1,4 +1,4 @@
-from mock import create_autospec
+from mock import Mock
 from wtf.plugins import Plugin
 import wtf
 
@@ -27,10 +27,10 @@ class PluginRunnerTests(unittest.TestCase):
 
     def testPluginConf(self):
         "config dict should be passed to plugin"
-        p = create_autospec(Plugin)
-        p.name = '**name**'
+        p = Mock(spec=Plugin)
+        p.name = Mock(return_value='**name**')
         wtf.run_plugin({'**name**': {'k': 'v'}}, p)
-        p.assert_called_once_with({'k': 'v'})
+        p.assert_called_once_with({'k': 'v', 'common': {}   })
 
     def testPluginOK(self):
         self.assertEqual(dict(problem="problem", info="info", extra_info="extra_info"),

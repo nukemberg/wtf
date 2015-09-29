@@ -13,6 +13,7 @@ from wtf.plugins.ifconfig import Ifconfig
 from functools import partial
 import os
 import yaml
+import collections
 
 WTF_CONF_YAML = "/etc/wtf.yaml"
 WTF_CONF_JSON = "/etc/wtf.json"
@@ -75,7 +76,7 @@ def run_plugin(conf, plugin):
     try:
         if plugin.enabled():
             plugin_res = plugin.run()
-            if type(plugin_res) != dict:
+            if not isinstance(plugin_res, collections.Mapping):
                 raise RuntimeError("Plugin returned wrong type")
             return plugin_res
     except Exception:
