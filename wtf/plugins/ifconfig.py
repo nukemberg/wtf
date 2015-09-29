@@ -43,7 +43,9 @@ class Ifconfig(Plugin):
 
         bad_interfaces = dict(filter(self._iface_is_bad, filetered_data.items()))
 
-        return dict(problem="The following NICs appear to have issues: %s\nPlease note that ifconfig counters need to be reset in order to avoid detecting old errors" % ", ".join(bad_interfaces.keys()))
+        return dict(
+            problem="The following NICs appear to have issues: %s\nPlease note that ifconfig counters need to be reset in order to avoid detecting old errors" % ", ".join(
+                bad_interfaces.keys())) if bad_interfaces else {}
 
     def _parse_ifconfig_output(self, ifconfig_output):
         chunks = filter(lambda c: c, ifconfig_output.split('\n\n'))
@@ -88,5 +90,7 @@ class Ifconfig(Plugin):
         return iface_name, info
 
     def _iface_is_bad(self, (iface, iface_info)):
-        return any(v > 0 for (k, v) in iface_info.items()
-                   if '_' in k and k.split('_')[1] in ('collisions', 'dropped', 'errors', 'overruns', 'carrier'))
+        if iface_info:
+            return any(v > 0 for (k, v) in iface_info.items()
+                       if '_' in k and k.split('_')[1] in ('collisions', 'dropped', 'errors', 'overruns', 'carrier'))
+        return {}
