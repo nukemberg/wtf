@@ -3,3 +3,4 @@ procfs
 colorama
 pyaml
 pluginbase
+futures

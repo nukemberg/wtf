@@ -13,10 +13,16 @@ import collections
 from pluginbase import PluginBase
 import inspect
 from wtf.plugin import Plugin
+from concurrent.futures import ThreadPoolExecutor
 
 
 WTF_CONF_YAML = "/etc/wtf.yaml"
 WTF_CONF_JSON = "/etc/wtf.json"
+
+default_common_conf = {
+    'plugin_path': [],
+    'threads': 4
+}
 
 
 def read_conf(conf_file):
@@ -24,6 +30,7 @@ def read_conf(conf_file):
         conf_files = [WTF_CONF_JSON, WTF_CONF_YAML]
     else:
         conf_files = [conf_file]
+
     for file in conf_files:
         if os.path.isfile(file):
             with open(file, 'r') as f:
@@ -43,6 +50,7 @@ def read_conf(conf_file):
 def main(verbose, config):
     logging.basicConfig(level=logging.WARN, format="%(levelname)s: %(message)s")
     conf = read_conf(config)
+    conf['common'] = dict(default_common_conf.items() + conf.get('common', {}).items())
     wtf_data = run_plugins(conf)
     colorama.init()
 
@@ -58,10 +66,18 @@ def main(verbose, config):
 
 
 def run_plugins(conf):
+    """
+    Load all plugins and run them
+
+    :param conf:
+    :type conf: dict
+    :return: a list of plugin outputs
+    :rtype: list[dict]
+    """
     plugin_path = [os.path.join(os.path.dirname(__file__), 'plugins')]
     try:
         plugin_path += conf['common']['plugin_path']
-    except KeyError:
+    except (KeyError, TypeError):
         pass
 
     plugin_base = PluginBase('wtf.plugins')
@@ -73,7 +89,10 @@ def run_plugins(conf):
         _classes = inspect.getmembers(plugin_module, inspect.isclass)
         plugins += [_class for name, _class in _classes if issubclass(_class, Plugin) and not _class == Plugin]
 
-    return filter(None, map(partial(run_plugin, conf), plugins))
+    with ThreadPoolExecutor(max_workers=conf['common']['threads']) as executor:
+        future_results = [executor.submit(run_plugin, conf, plugin) for plugin in plugins]
+
+    return [res.result() for res in future_results if res.result()]
 
 
 def run_plugin(conf, plugin):
