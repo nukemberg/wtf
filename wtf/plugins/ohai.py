@@ -1,6 +1,6 @@
 import json
 import subprocess
-from wtf.plugins import Plugin
+from wtf.plugin import Plugin
 from wtf.utils import which, get_in, flatten_key_name
 
 __author__ = 'avishai'

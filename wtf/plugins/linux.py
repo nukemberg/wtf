@@ -1,7 +1,7 @@
 import procfs
 import os
 import multiprocessing
-from wtf.plugins import Plugin
+from wtf.plugin import Plugin
 
 __author__ = 'avishai'
 

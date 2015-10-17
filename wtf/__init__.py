@@ -6,14 +6,14 @@ import json
 import logging
 import click
 import colorama
-from wtf.plugins.linux import Df, LoadAvg
-from wtf.plugins.facter import Facter
-from wtf.plugins.ohai import Ohai
-from wtf.plugins.ifconfig import Ifconfig
 from functools import partial
 import os
 import yaml
 import collections
+from pluginbase import PluginBase
+import inspect
+from wtf.plugin import Plugin
+
 
 WTF_CONF_YAML = "/etc/wtf.yaml"
 WTF_CONF_JSON = "/etc/wtf.json"
@@ -58,7 +58,21 @@ def main(verbose, config):
 
 
 def run_plugins(conf):
-    plugins = [Df, LoadAvg, Facter, Ohai, Ifconfig]
+    plugin_path = [os.path.join(os.path.dirname(__file__), 'plugins')]
+    try:
+        plugin_path += conf['common']['plugin_path']
+    except KeyError:
+        pass
+
+    plugin_base = PluginBase('wtf.plugins')
+    plugin_source = plugin_base.make_plugin_source(searchpath=plugin_path)
+
+    plugins = []
+    for plugin_name in plugin_source.list_plugins():
+        plugin_module = plugin_source.load_plugin(plugin_name)
+        _classes = inspect.getmembers(plugin_module, inspect.isclass)
+        plugins += [_class for name, _class in _classes if issubclass(_class, Plugin) and not _class == Plugin]
+
     return filter(None, map(partial(run_plugin, conf), plugins))
 
 

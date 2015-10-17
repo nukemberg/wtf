@@ -2,3 +2,4 @@ click
 procfs
 colorama
 pyaml
+pluginbase

@@ -1,6 +1,6 @@
 __author__ = 'avishai'
 
-from wtf.plugins import Plugin
+from wtf.plugin import Plugin
 import subprocess
 import json
 from wtf.utils import which
