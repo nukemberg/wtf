@@ -1,5 +1,5 @@
 from mock import Mock
-from wtf.plugins import Plugin
+from wtf.plugin import Plugin
 import wtf
 
 __author__ = 'avishai'
