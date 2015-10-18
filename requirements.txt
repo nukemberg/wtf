@@ -1,6 +1,6 @@
 click
 procfs
 colorama
-pyaml
+PyYAML
 pluginbase
 futures
