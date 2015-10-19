@@ -17,4 +17,4 @@ class Facter(Plugin):
         return dict(problem=False, info=facter_facts)
 
     def enabled(self):
-        return which("facter") is not None
+        return bool(which("facter"))
