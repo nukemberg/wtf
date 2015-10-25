@@ -4,3 +4,4 @@ colorama
 PyYAML
 pluginbase
 futures
+psutil

@@ -1,6 +1,7 @@
 import subprocess
 from wtf.plugin import Plugin
 import re
+import psutil
 
 __author__ = 'avishai'
 
@@ -35,34 +36,23 @@ These days, Full Duplex switch links are the norm. Only TX and RX packets should
 
 class Ifconfig(Plugin):
     def run(self):
-        data = self._read_proc_net_dev()
-        ignored_ifaces = self._conf.get('ignored', [])
-        filtered_data = dict(filter(lambda (iface, iface_info): iface not in ignored_ifaces, data.items()))
-        bad_interfaces = dict(filter(self._iface_is_bad, filtered_data.items()))
+        ignored_ifaces = self._conf.get('ignored', ['lo'])
+        data = {k: dict(v.__dict__) for k, v in psutil.net_io_counters(True).items() if k not in ignored_ifaces}
+        ifaces_stats = {k: dict(v.__dict__) for k, v in psutil.net_if_stats().items() if k not in ignored_ifaces}
+        ifaces_down = [k for k, v in ifaces_stats.items() if not v['isup']]
+
+        bad_interfaces = dict(filter(self._iface_is_bad, data.items()))
+
+        problems = []
+        if ifaces_down:
+            problems.append("The following interfaces are down: %s" % ",".join(ifaces_down))
+
         if bad_interfaces:
-            return dict(problem="The following NICs appear to have issues: %s\n"
+            problems.append("The following NICs appear to have issues: %s\n"
                             "Please note that ifconfig counters need to be reset in order to avoid detecting old errors"
                             % ", ".join(bad_interfaces.keys()))
-        else:
-            return dict()
 
-    def _read_proc_net_dev(self):
-        with open('/proc/net/dev') as f:
-            # skip header lines
-            next(f)
-
-            rx_columns, tx_columns = map(lambda l: re.split('\s+', l), next(f).strip().split('|')[1:])
-            rx_columns = ['rx_' + column_name for column_name in rx_columns]
-            tx_columns = ['tx_' + column_name for column_name in tx_columns]
-
-            dev_stats = {}
-            for line in f:
-                dev, raw_stats = line.strip().split(':', 1)
-                stats = map(int, re.split('\s+', raw_stats.strip()))
-                dev_stats[dev] = dict(zip(rx_columns + tx_columns, stats))
-
-        return dev_stats
+        return dict(problem="\n".join(problems), extra_info=data)
 
     def _iface_is_bad(self, (iface, iface_info)):
-        return any(v > 0 for (k, v) in iface_info.items()
-                   if '_' in k and k.split('_')[1] in ('tx_colls', 'tx_drop', 'tx_errs', 'rx_drop', 'rx_errs'))
+        return any(iface_info[k] > 0 for k in ('dropout', 'dropin', 'errout', 'errin'))
