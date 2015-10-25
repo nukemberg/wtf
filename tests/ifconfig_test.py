@@ -11,7 +11,7 @@ class IfconfigPluginTest(unittest.TestCase):
 
     def testDownIfaces(self):
         with patch.object(psutil, 'net_io_counters', return_value={'lo': {}}), \
-             patch.object(psutil, 'net_if_stats', return_value={'eth0': snicstats(False, 0, 0, 1500)}):
+                patch.object(psutil, 'net_if_stats', return_value={'eth0': snicstats(False, 0, 0, 1500)}):
             output = self._plugin.run()
             self.assertEqual(output['problem'], 'The following interfaces are down: eth0')
 
@@ -21,16 +21,16 @@ class IfconfigPluginTest(unittest.TestCase):
             snetio(122312, 2312312, 3432, 34324, 0, 1, 0, 0),
             snetio(122312, 2312312, 3432, 34324, 0, 0, 1, 0),
             snetio(122312, 2312312, 3432, 34324, 0, 0, 0, 1)
-            ]:
+        ]:
 
             with patch.object(psutil, 'net_io_counters', return_value={'eth0': test_snetio}), \
-                patch.object(psutil, 'net_if_stats', return_value={'eth0': snicstats(True, 0, 0, 1500)}):
+                    patch.object(psutil, 'net_if_stats', return_value={'eth0': snicstats(True, 0, 0, 1500)}):
                 output = self._plugin.run()
                 self.assertRegexpMatches(output['problem'], 'issues.*eth0')
 
     def testIfaceIgnored(self):
         plugin = Ifconfig({'ignored': ['eth0']})
         with patch.object(psutil, 'net_io_counters', return_value={'eth0': snetio(1122, 233, 333, 333, 1, 1, 1, 1)}), \
-            patch.object(psutil, 'net_if_stats', return_value={'eth0': snicstats(False, 0, 0, 1500)}):
+                patch.object(psutil, 'net_if_stats', return_value={'eth0': snicstats(False, 0, 0, 1500)}):
             output = plugin.run()
-            self.assertNotIn('problem', output)
+            self.assertFalse(output['problem'])
