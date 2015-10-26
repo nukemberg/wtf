@@ -37,8 +37,8 @@ These days, Full Duplex switch links are the norm. Only TX and RX packets should
 class Ifconfig(Plugin):
     def run(self):
         ignored_ifaces = self._conf.get('ignored', ['lo'])
-        data = {k: dict(v.__dict__) for k, v in psutil.net_io_counters(True).items() if k not in ignored_ifaces}
-        ifaces_stats = {k: dict(v.__dict__) for k, v in psutil.net_if_stats().items() if k not in ignored_ifaces}
+        data = dict((k, dict(v.__dict__)) for k, v in psutil.net_io_counters(True).items() if k not in ignored_ifaces)
+        ifaces_stats = dict((k, dict(v.__dict__)) for k, v in psutil.net_if_stats().items() if k not in ignored_ifaces)
         ifaces_down = [k for k, v in ifaces_stats.items() if not v['isup']]
 
         bad_interfaces = dict(filter(self._iface_is_bad, data.items()))
