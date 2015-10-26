@@ -14,6 +14,7 @@ from pluginbase import PluginBase
 import inspect
 from wtf.plugin import Plugin
 from concurrent.futures import ThreadPoolExecutor
+import pkg_resources
 
 
 WTF_CONF_YAML = "/etc/wtf.yaml"
@@ -74,7 +75,7 @@ def run_plugins(conf):
     :return: a list of plugin outputs
     :rtype: list[dict]
     """
-    plugin_path = [os.path.join(os.path.dirname(__file__), 'plugins')]
+    plugin_path = [pkg_resources.resource_filename('wtf', 'plugins')]
     try:
         plugin_path += conf['common']['plugin_path']
     except (KeyError, TypeError):
