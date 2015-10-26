@@ -1,7 +1,8 @@
-from unittest import TestCase
+from unittest2 import TestCase
 from wtf.utils import get_in, which, flatten_key_name
 
 __author__ = 'avishai'
+
 
 class UtilsTest(TestCase):
     def test_which(self):

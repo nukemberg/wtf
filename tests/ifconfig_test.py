@@ -1,4 +1,4 @@
-import unittest
+from unittest2 import TestCase
 from mock import patch
 import psutil
 from psutil._common import snicstats, snetio
@@ -8,7 +8,7 @@ from tests import load_plugin
 
 ifconfig = load_plugin('ifconfig')
 
-class IfconfigPluginTest(unittest.TestCase):
+class IfconfigPluginTest(TestCase):
 
     def setUp(self):
         self._plugin = ifconfig.Ifconfig({})

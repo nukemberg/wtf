@@ -1,10 +1,9 @@
+__author__ = 'avishai'
+
 from mock import Mock
 from wtf.plugin import Plugin
 import wtf
-
-__author__ = 'avishai'
-
-import unittest
+from unittest2 import TestCase
 
 
 class DummyBadPlugin(Plugin):
@@ -22,7 +21,7 @@ class DummyGoodPlugin(Plugin):
         return dict(problem="problem", info="info", extra_info="extra_info")
 
 
-class PluginRunnerTests(unittest.TestCase):
+class PluginRunnerTests(TestCase):
     def testPluginError(self):
         self.assertEqual(wtf.run_plugin({}, DummyBadPlugin), None)
 
