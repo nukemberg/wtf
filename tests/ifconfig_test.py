@@ -2,14 +2,16 @@ import unittest
 from mock import patch
 import psutil
 from psutil._common import snicstats, snetio
-from wtf.plugins.ifconfig import Ifconfig
 import contextlib
 
+from tests import load_plugin
+
+ifconfig = load_plugin('ifconfig')
 
 class IfconfigPluginTest(unittest.TestCase):
 
     def setUp(self):
-        self._plugin = Ifconfig({})
+        self._plugin = ifconfig.Ifconfig({})
 
     def testDownIfaces(self):
         with contextlib.nested( 
@@ -33,7 +35,7 @@ class IfconfigPluginTest(unittest.TestCase):
                 self.assertRegexpMatches(output['problem'], 'issues.*eth0')
 
     def testIfaceIgnored(self):
-        plugin = Ifconfig({'ignored': ['eth0']})
+        plugin = ifconfig.Ifconfig({'ignored': ['eth0']})
         with contextlib.nested(
             patch.object(psutil, 'net_io_counters', return_value={'eth0': snetio(1122, 233, 333, 333, 1, 1, 1, 1)}),
             patch.object(psutil, 'net_if_stats', return_value={'eth0': snicstats(False, 0, 0, 1500)})):

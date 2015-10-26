@@ -75,6 +75,13 @@ def run_plugins(conf):
     :return: a list of plugin outputs
     :rtype: list[dict]
     """
+    plugins = load_plugins(conf)
+    with ThreadPoolExecutor(max_workers=conf['common']['threads']) as executor:
+        future_results = [executor.submit(run_plugin, conf, plugin) for plugin in plugins]
+
+    return [res.result() for res in future_results if res.result()]
+
+def load_plugins(conf):
     plugin_path = [pkg_resources.resource_filename('wtf', 'plugins')]
     try:
         plugin_path += conf['common']['plugin_path']
@@ -90,11 +97,7 @@ def run_plugins(conf):
         _classes = inspect.getmembers(plugin_module, inspect.isclass)
         plugins += [_class for name, _class in _classes if issubclass(_class, Plugin) and not _class == Plugin]
 
-    with ThreadPoolExecutor(max_workers=conf['common']['threads']) as executor:
-        future_results = [executor.submit(run_plugin, conf, plugin) for plugin in plugins]
-
-    return [res.result() for res in future_results if res.result()]
-
+    return plugins
 
 def run_plugin(conf, plugin):
     """
