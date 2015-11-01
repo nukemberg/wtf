@@ -7,7 +7,7 @@ def requirements_file(f):
 setup(name='wtf',
       version='0.1.0',
       description='A first responder aid',
-      packages=find_packages(exclude=['tests']) + ['wtf/plugins'],
+      packages=['wtf', 'wtf.plugins'],
       entry_points={
             'console_scripts': ['wtf=wtf:main']
       },

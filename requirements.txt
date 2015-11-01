@@ -9,4 +9,3 @@ psutil==3.2.2
 PyYAML==3.11
 six==1.10.0
 wheel==0.24.0
-wtf==0.1.0
