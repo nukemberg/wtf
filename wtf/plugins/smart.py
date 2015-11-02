@@ -1,5 +1,5 @@
 from wtf.plugin import Plugin
-from utils import which
+from wtf.utils import which
 import subprocess
 import os
 
